@@ -1,5 +1,12 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  Modal,
+  StyleSheet,
+  Button
+} from 'react-native';
 import { getMetricMetaInfo } from '../utils/helpers';
 import UdaciSlider from './UdaciSlider';
 import UdaciStepper from './UdaciSteppers';
@@ -22,8 +29,16 @@ export default class AddEntry extends Component {
     bike: 0,
     swim: 0,
     sleep: 0,
-    eat: 0
+    eat: 0,
+    modalVisible: false
   };
+  openModal() {
+    this.setState({ modalVisible: true });
+  }
+
+  closeModal() {
+    this.setState({ modalVisible: false });
+  }
   increment = metric => {
     const { max, step } = getMetricMetaInfo(metric);
     this.setState(state => {
@@ -116,7 +131,37 @@ export default class AddEntry extends Component {
           );
         })}
         <SubmitBtn onPress={this.submit} />
+        {/* <Button onPress={() => this.openModal()} title="Open modal" /> */}
+
+        <View style={styles.container}>
+          <Modal
+            visible={this.state.modalVisible}
+            animationType={'slide'}
+            onRequestClose={() => this.closeModal()}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.innerContainer}>
+                <Text>This is content inside of modal component</Text>
+                <Button onPress={() => this.closeModal()} title="Close modal" />
+              </View>
+            </View>
+          </Modal>
+        </View>
       </View>
     );
   }
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center'
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'grey'
+  },
+  innerContainer: {
+    alignItems: 'center'
+  }
+});
