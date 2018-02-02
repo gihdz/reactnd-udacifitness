@@ -7,15 +7,21 @@ import {
   StyleSheet,
   Button
 } from 'react-native';
-import { getMetricMetaInfo } from '../utils/helpers';
+import { connect } from 'react-redux';
+
+import {
+  getMetricMetaInfo,
+  getDailyReminderValue,
+  timeToString
+} from '../utils/helpers';
 import UdaciSlider from './UdaciSlider';
 import UdaciStepper from './UdaciSteppers';
 import DateHeader from './DateHeader';
 import TextButton from './TextButton';
+import { addEntry } from '../actions';
 
 import { submitEntry, removeEntry } from '../utils/api';
 
-import { timeToString } from '../utils/helpers';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const SubmitBtn = ({ onPress }) => {
@@ -25,7 +31,7 @@ const SubmitBtn = ({ onPress }) => {
     </TouchableOpacity>
   );
 };
-export default class AddEntry extends Component {
+class AddEntry extends Component {
   state = {
     run: 0,
     bike: 0,
@@ -70,8 +76,17 @@ export default class AddEntry extends Component {
   submit = () => {
     const key = timeToString();
     const entry = this.state;
+    const { addEntry } = this.props;
 
-    //Update Redux
+    addEntry({
+      [key]: entry
+    });
+    // this.props.dispatch(
+    //   addEntry({
+    //     [key]: entry
+    //   })
+    // );
+
     this.setState({
       run: 0,
       bike: 0,
@@ -87,7 +102,11 @@ export default class AddEntry extends Component {
   };
   reset = () => {
     const key = timeToString();
-    //Update Redux
+    const { addEntry } = this.props;
+
+    addEntry({
+      [key]: getDailyReminderValue()
+    });
 
     //Route to Home
 
@@ -153,6 +172,19 @@ export default class AddEntry extends Component {
     );
   }
 }
+
+const mapStateToProps = state => {
+  const key = timeToString();
+  console.log('time to string key', key);
+  console.log('state', state);
+  console.log(state[key] && state[key].today === undefined);
+
+  return {
+    alreadyLogged: state[key] && state[key].today === undefined
+  };
+};
+export default connect(mapStateToProps, { addEntry })(AddEntry);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
