@@ -81,11 +81,6 @@ class AddEntry extends Component {
     addEntry({
       [key]: entry
     });
-    // this.props.dispatch(
-    //   addEntry({
-    //     [key]: entry
-    //   })
-    // );
 
     this.setState({
       run: 0,
@@ -175,9 +170,6 @@ class AddEntry extends Component {
 
 const mapStateToProps = state => {
   const key = timeToString();
-  console.log('time to string key', key);
-  console.log('state', state);
-  console.log(state[key] && state[key].today === undefined);
 
   return {
     alreadyLogged: state[key] && state[key].today === undefined
