@@ -9,7 +9,6 @@ export default function MetricCard({ date, metrics }) {
     <View>
       {date && <DateHeader date={date} />}
       {Object.keys(metrics).map(metric => {
-        console.log('metric', metric);
         const {
           getIcon,
           displayName,

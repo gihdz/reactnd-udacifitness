@@ -159,7 +159,7 @@ class AddEntry extends Component {
         })}
         <SubmitBtn onPress={this.submit} />
         {/* <Button onPress={() => this.openModal()} title="Open modal" /> */}
-
+        {/* 
         <View style={styles.container}>
           <Modal
             visible={this.state.modalVisible}
@@ -173,7 +173,7 @@ class AddEntry extends Component {
               </View>
             </View>
           </Modal>
-        </View>
+        </View> */}
       </View>
     );
   }
