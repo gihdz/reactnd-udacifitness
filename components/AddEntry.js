@@ -44,8 +44,7 @@ class AddEntry extends Component {
     bike: 0,
     swim: 0,
     sleep: 0,
-    eat: 0,
-    modalVisible: false
+    eat: 0
   };
   openModal() {
     this.setState({ modalVisible: true });
