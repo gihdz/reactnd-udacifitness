@@ -3,30 +3,26 @@ import {
   View,
   TouchableOpacity,
   Text,
-  Modal,
   StyleSheet,
-  Button,
   Platform
 } from 'react-native';
-import { connect } from 'react-redux';
-
 import {
   getMetricMetaInfo,
-  getDailyReminderValue,
-  timeToString
+  timeToString,
+  getDailyReminderValue
 } from '../utils/helpers';
 import UdaciSlider from './UdaciSlider';
-import UdaciStepper from './UdaciSteppers';
+import UdaciSteppers from './UdaciSteppers';
 import DateHeader from './DateHeader';
+import { Ionicons } from '@expo/vector-icons';
 import TextButton from './TextButton';
-import { addEntry } from '../actions';
-
 import { submitEntry, removeEntry } from '../utils/api';
-
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { connect } from 'react-redux';
+import { addEntry } from '../actions';
 import { purple, white } from '../utils/colors';
+import { NavigationActions } from 'react-navigation';
 
-const SubmitBtn = ({ onPress }) => {
+function SubmitBtn({ onPress }) {
   return (
     <TouchableOpacity
       style={
@@ -37,7 +33,7 @@ const SubmitBtn = ({ onPress }) => {
       <Text style={styles.submitBtnText}>SUBMIT</Text>
     </TouchableOpacity>
   );
-};
+}
 class AddEntry extends Component {
   state = {
     run: 0,
@@ -46,15 +42,9 @@ class AddEntry extends Component {
     sleep: 0,
     eat: 0
   };
-  openModal() {
-    this.setState({ modalVisible: true });
-  }
-
-  closeModal() {
-    this.setState({ modalVisible: false });
-  }
   increment = metric => {
     const { max, step } = getMetricMetaInfo(metric);
+
     this.setState(state => {
       const count = state[metric] + step;
 
@@ -82,39 +72,40 @@ class AddEntry extends Component {
   submit = () => {
     const key = timeToString();
     const entry = this.state;
-    const { addEntry } = this.props;
 
-    addEntry({
-      [key]: entry
-    });
+    this.props.dispatch(
+      addEntry({
+        [key]: entry
+      })
+    );
 
-    this.setState({
-      run: 0,
-      bike: 0,
-      swim: 0,
-      sleep: 0,
-      eat: 0
-    });
-    //Navigate to home
+    this.setState(() => ({ run: 0, bike: 0, swim: 0, sleep: 0, eat: 0 }));
+
+    this.toHome();
 
     submitEntry({ key, entry });
 
-    //Clear local notifications
+    // Clear local notification
   };
   reset = () => {
     const key = timeToString();
-    const { addEntry } = this.props;
 
-    addEntry({
-      [key]: getDailyReminderValue()
-    });
+    this.props.dispatch(
+      addEntry({
+        [key]: getDailyReminderValue()
+      })
+    );
 
-    //Route to Home
+    this.toHome();
 
     removeEntry(key);
   };
+  toHome = () => {
+    this.props.navigation.dispatch(NavigationActions.back({ key: 'AddEntry' }));
+  };
   render() {
     const metaInfo = getMetricMetaInfo();
+
     if (this.props.alreadyLogged) {
       return (
         <View style={styles.center}>
@@ -122,14 +113,14 @@ class AddEntry extends Component {
             name={Platform.OS === 'ios' ? 'ios-happy-outline' : 'md-happy'}
             size={100}
           />
-          <Text>You already logged your information for today</Text>
-
+          <Text>You already logged your information for today.</Text>
           <TextButton style={{ padding: 10 }} onPress={this.reset}>
             Reset
           </TextButton>
         </View>
       );
     }
+
     return (
       <View style={styles.container}>
         <DateHeader date={new Date().toLocaleDateString()} />
@@ -147,7 +138,7 @@ class AddEntry extends Component {
                   {...rest}
                 />
               ) : (
-                <UdaciStepper
+                <UdaciSteppers
                   value={value}
                   onIncrement={() => this.increment(key)}
                   onDecrement={() => this.decrement(key)}
@@ -158,26 +149,11 @@ class AddEntry extends Component {
           );
         })}
         <SubmitBtn onPress={this.submit} />
-        {/* <Button onPress={() => this.openModal()} title="Open modal" /> */}
-        {/* 
-        <View style={styles.container}>
-          <Modal
-            visible={this.state.modalVisible}
-            animationType={'slide'}
-            onRequestClose={() => this.closeModal()}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.innerContainer}>
-                <Text>This is content inside of modal component</Text>
-                <Button onPress={() => this.closeModal()} title="Close modal" />
-              </View>
-            </View>
-          </Modal>
-        </View> */}
       </View>
     );
   }
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -221,26 +197,13 @@ const styles = StyleSheet.create({
     marginRight: 30
   }
 });
-const mapStateToProps = state => {
+
+function mapStateToProps(state) {
   const key = timeToString();
 
   return {
-    alreadyLogged: state[key] && state[key].today === undefined
+    alreadyLogged: state[key] && typeof state[key].today === 'undefined'
   };
-};
-export default connect(mapStateToProps, { addEntry })(AddEntry);
+}
 
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: 'center'
-//   },
-//   modalContainer: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     backgroundColor: 'grey'
-//   },
-//   innerContainer: {
-//     alignItems: 'center'
-//   }
-// });
+export default connect(mapStateToProps)(AddEntry);
